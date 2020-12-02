@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type ParsedLine struct {
@@ -14,41 +15,19 @@ type ParsedLine struct {
 }
 
 func parseLine(line string) ParsedLine {
-	parsing := 0 // 0: min; 1: max; 2: char; 3: password
-	var rawMin, rawMax, password string
-	var char rune
-	for _, c := range line {
-		if c == '-' {
-			parsing++
-			continue
-		}
-		if c == ' ' {
-			parsing++
-			continue
-		}
-		if c == ':' {
-			continue
-		}
+	minString := strings.Split(line, "-")[0]
+	maxString := strings.Split(strings.Split(line, "-")[1], " ")[0]
+	charString := strings.Split(strings.Split(line, ":")[0], " ")[1]
+	password := strings.Split(line, " ")[2]
 
-		switch parsing {
-		case 0:
-			rawMin += string(c)
-		case 1:
-			rawMax += string(c)
-		case 2:
-			char = c
-		case 3:
-			password += string(c)
-		}
-	}
-	min, _ := strconv.Atoi(rawMin)
-	max, _ := strconv.Atoi(rawMax)
+	min, _ := strconv.Atoi(minString)
+	max, _ := strconv.Atoi(maxString)
+	char := rune(charString[0])
 	return ParsedLine{min, max, char, password}
 }
 
 func main() {
 	b := bufio.NewScanner(os.Stdin)
-	// var input []string
 	part1CorrectCount := 0
 	part2CorrectCount := 0
 	for b.Scan() {
