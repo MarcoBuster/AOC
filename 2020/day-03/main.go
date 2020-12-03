@@ -23,7 +23,8 @@ func countTrees(lines *[]string, deltaX, deltaY int) (trees int) {
 }
 
 func main() {
-	b := bufio.NewScanner(os.Stdin)
+	f, _ := os.Open("input.txt")
+	b := bufio.NewScanner(f)
 	var lines []string
 	for b.Scan() {
 		lines = append(lines, b.Text())
