@@ -6,64 +6,35 @@ import (
 	"os"
 )
 
-func main() {
-	b := bufio.NewScanner(os.Stdin)
-	var lines []string
-	var i, x, trees int
-	for b.Scan() {
-		lines = append(lines, b.Text())
-	}
-	for _, line := range lines {
-		fmt.Println(i, x%len(line))
-		if line[x%len(line)] == '#' {
-			trees++
-		}
-		x += 3
-		i++
-	}
-	fmt.Println("Part 1", trees)
-
-	// Part 2 - right 1 down 1
-	trees, x = 0, 0
-	for _, line := range lines {
-		if line[x%len(line)] == '#' {
-			trees++
-		}
-		x += 1
-	}
-	fmt.Println("Part 2A:", trees)
-
-	// Part 2B - right 5 down 1
-	trees, x = 0, 0
-	for _, line := range lines {
-		if line[x%len(line)] == '#' {
-			trees++
-		}
-		x += 5
-	}
-	fmt.Println("Part 2B:", trees)
-
-	// Part 2C - right 7 down 1
-	trees, x = 0, 0
-	for _, line := range lines {
-		if line[x%len(line)] == '#' {
-			trees++
-		}
-		x += 7
-	}
-	fmt.Println("Part 2C:", trees)
-
-	// Part 2D - right 1 down 2
-	trees, x, i = 0, 0, -1
-	for _, line := range lines {
-		i++
-		if i%2 == 1 {
+func countTrees(lines *[]string, deltaX, deltaY int) (trees int) {
+	var x, y int
+	for _, line := range *lines {
+		if y%deltaY != 0 {
+			y++
 			continue
 		}
 		if line[x%len(line)] == '#' {
 			trees++
 		}
-		x += 1
+		x += deltaX
+		y++
 	}
-	fmt.Println("Part 2D:", trees)
+	return
+}
+
+func main() {
+	b := bufio.NewScanner(os.Stdin)
+	var lines []string
+	for b.Scan() {
+		lines = append(lines, b.Text())
+	}
+
+	part1 := countTrees(&lines, 3, 1)
+	fmt.Println("Answer (part 1):", part1)
+
+	part2A := countTrees(&lines, 1, 1)
+	part2C := countTrees(&lines, 5, 1)
+	part2D := countTrees(&lines, 7, 1)
+	part2E := countTrees(&lines, 1, 2)
+	fmt.Println("Answer (part 2):", part2A*part1*part2C*part2D*part2E)
 }
