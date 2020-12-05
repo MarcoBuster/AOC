@@ -27,7 +27,8 @@ func parseLine(line string) ParsedLine {
 }
 
 func main() {
-	b := bufio.NewScanner(os.Stdin)
+	f, _ := os.Open("input.txt")
+	b := bufio.NewScanner(f)
 	part1CorrectCount := 0
 	part2CorrectCount := 0
 	for b.Scan() {

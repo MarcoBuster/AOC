@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	b := bufio.NewScanner(os.Stdin)
+	f, _ := os.Open("input.txt")
+	b := bufio.NewScanner(f)
 	var input []int
 	for b.Scan() {
 		n, err := strconv.Atoi(b.Text())
