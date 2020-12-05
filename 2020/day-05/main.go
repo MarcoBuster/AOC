@@ -14,7 +14,7 @@ func navigateTicket(r int, ticket string) int {
 	}
 	for _, c := range ticket {
 		if c == 'F' || c == 'L' { // lower half
-			seats = seats[:int(float64(len(seats))/float64(2)+0.5)]
+			seats = seats[:len(seats)/2]
 		} else if c == 'B' || c == 'R' { // upper half
 			seats = seats[len(seats)/2:]
 		}
