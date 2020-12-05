@@ -37,7 +37,7 @@ func main() {
 		}
 		ticketIDs = append(ticketIDs, ticketID)
 	}
-	fmt.Println("Answer (part 1)", high)
+	fmt.Println("Answer (part 1):", high)
 
 	sort.Ints(ticketIDs)
 	for i, t := range ticketIDs {
