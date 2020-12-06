@@ -21,6 +21,6 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Build and run
-      run: for d in $(find "2020/" -maxdepth 2 -mindepth 1 -type d | sort); do printf "\n┌-------------┐\n| $d |\n└-------------┘\n"; cd "$d"; time go run main.go || exit 1; cd ../../; done;
+      run: for d in $(find "2020/" -maxdepth 2 -mindepth 1 -type d | sort); do printf "\n┌-------------┐\n| $d |\n└-------------┘\n"; cd "$d"; go build main.go; time ./main || exit 1; sleep 1; cd ../../; done;
 
 
