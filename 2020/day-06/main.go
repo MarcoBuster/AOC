@@ -18,6 +18,9 @@ func alreadyInArray(x []rune, element rune) bool {
 func countAnswersPart1(answers string) int {
 	var seen []rune
 	for _, answer := range answers {
+		if answer == '|' {
+			continue
+		}
 		if !alreadyInArray(seen, answer) {
 			seen = append(seen, answer)
 		}
