@@ -32,10 +32,10 @@ func findEarliestBus(target int, buses *[]int, start int) (int, int) {
 			distances[b] = b * i
 		}
 	}
-	minDistance := distances[(*buses)[0]]
+	minDistance := -1
 	winner := 0
 	for i, k := range distances {
-		if k < minDistance {
+		if k < minDistance || minDistance == -1 {
 			minDistance = distances[i]
 			winner = i
 		}
