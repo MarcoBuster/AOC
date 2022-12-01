@@ -1,0 +1,24 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Build and run
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Build and run
+      run: for d in $(find "2022/" -maxdepth 1 -mindepth 1 -type d | sort); do printf "\n┌-------------┐\n| $d |\n└-------------┘\n"; cd "$d"; cargo build --release --all-features; time "$(find "target/release/" -maxdepth 1 -type f -executable)" || exit 1; sleep 1; cd ../../; done;
