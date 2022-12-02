@@ -1,5 +1,7 @@
 use std::fs;
 
+mod tests;
+
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 enum Shape {
     Rock = 1,
@@ -7,13 +9,15 @@ enum Shape {
     Scissors = 3,
 }
 
-impl Shape {
-    fn from_str(string: &str) -> Option<Self> {
-        match string {
-            "A" | "X" => Some(Self::Rock),
-            "B" | "Y" => Some(Self::Paper),
-            "C" | "Z" => Some(Self::Scissors),
-            _ => None,
+impl TryFrom<&str> for Shape {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value {
+            "A" | "X" => Ok(Self::Rock),
+            "B" | "Y" => Ok(Self::Paper),
+            "C" | "Z" => Ok(Self::Scissors),
+            _ => Err("Can't derive a Shape from illegal string"),
         }
     }
 }
@@ -31,13 +35,15 @@ enum Outcome {
     Win,
 }
 
-impl Outcome {
-    fn from_str(string: &str) -> Option<Self> {
-        match string {
-            "X" => Some(Self::Lose),
-            "Y" => Some(Self::Draw),
-            "Z" => Some(Self::Win),
-            _ => None,
+impl TryFrom<&str> for Outcome {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value {
+            "X" => Ok(Self::Lose),
+            "Y" => Ok(Self::Draw),
+            "Z" => Ok(Self::Win),
+            _ => Err("Can't derive a Shape from illegal string"),
         }
     }
 }
@@ -113,9 +119,9 @@ fn main() {
         let line = line.replace(' ', "");
         let (opponent, myself) = line.split_at(1);
 
-        let opponent = Shape::from_str(opponent).unwrap();
-        let my_shape = Shape::from_str(myself).unwrap();
-        let prediction = Outcome::from_str(myself).unwrap();
+        let opponent = Shape::try_from(opponent).unwrap();
+        let my_shape = Shape::try_from(myself).unwrap();
+        let prediction = Outcome::try_from(myself).unwrap();
 
         let game = Game {
             opponent: opponent.clone(),
@@ -134,90 +140,4 @@ fn main() {
 
     println!("Part 2: {}", part_2);
     assert_eq!(part_2, 12683);
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::{Game, GameResult, Outcome, Shape};
-
-    #[test]
-    fn test_part1_ay() {
-        let game = Game {
-            opponent: Shape::Rock,
-            myself: Shape::Paper,
-        };
-        assert_eq!(
-            game.play(),
-            GameResult {
-                outcome: Outcome::Win,
-                my_points: 8
-            }
-        );
-    }
-
-    #[test]
-    fn test_part1_bx() {
-        let game = Game {
-            opponent: Shape::Paper,
-            myself: Shape::Rock,
-        };
-        assert_eq!(
-            game.play(),
-            GameResult {
-                outcome: Outcome::Lose,
-                my_points: 1
-            }
-        );
-    }
-
-    #[test]
-    fn test_part1_cz() {
-        let game = Game {
-            opponent: Shape::Scissors,
-            myself: Shape::Scissors,
-        };
-        assert_eq!(
-            game.play(),
-            GameResult {
-                outcome: Outcome::Draw,
-                my_points: 6
-            }
-        );
-    }
-
-    #[test]
-    fn test_part2_ay() {
-        let game = Game::from_prediction(Shape::Rock, Outcome::Draw);
-        assert_eq!(
-            game.play(),
-            GameResult {
-                outcome: Outcome::Draw,
-                my_points: 4
-            }
-        );
-    }
-
-    #[test]
-    fn test_part2_bx() {
-        let game = Game::from_prediction(Shape::Paper, Outcome::Lose);
-        assert_eq!(
-            game.play(),
-            GameResult {
-                outcome: Outcome::Lose,
-                my_points: 1
-            }
-        );
-    }
-
-    #[test]
-    fn test_part2_cz() {
-        let game = Game::from_prediction(Shape::Scissors, Outcome::Win);
-        assert_eq!(
-            game.play(),
-            GameResult {
-                outcome: Outcome::Win,
-                my_points: 7
-            }
-        );
-    }
 }
