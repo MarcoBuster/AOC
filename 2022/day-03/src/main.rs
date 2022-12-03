@@ -3,7 +3,7 @@ use std::fs;
 #[cfg(test)]
 mod tests;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 struct Item(char);
 
 impl Item {
@@ -23,7 +23,6 @@ impl Item {
 
 type Compartment = Vec<Item>;
 
-#[derive(Debug)]
 struct Rucksack(Compartment, Compartment);
 
 impl Rucksack {
@@ -49,7 +48,6 @@ impl Rucksack {
     }
 }
 
-#[derive(Debug)]
 struct Group(Rucksack, Rucksack, Rucksack);
 
 impl Group {
@@ -72,19 +70,17 @@ impl Group {
 
 fn main() {
     let contents = fs::read_to_string("input.txt").unwrap();
-
     let mut lines = contents.lines();
+
     let mut part_1 = 0;
     let mut part_2 = 0;
+
     while let (Some(line_1), Some(line_2), Some(line_3)) =
         (lines.next(), lines.next(), lines.next())
     {
         let group = Group::new(line_1, line_2, line_3);
 
-        part_1 += group.0.common_item().unwrap().priority();
-        part_1 += group.1.common_item().unwrap().priority();
-        part_1 += group.2.common_item().unwrap().priority();
-
+        [&group.0, &group.1, &group.2].map(|r| part_1 += r.common_item().unwrap().priority());
         part_2 += group.common_item().unwrap().priority();
     }
 
