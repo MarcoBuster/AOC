@@ -3,7 +3,7 @@ use std::fs;
 #[cfg(test)]
 mod tests;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq)]
 struct Item(char);
 
 impl Item {
@@ -23,32 +23,28 @@ impl Item {
 
 type Compartment = Vec<Item>;
 
-#[derive(Debug, Clone)]
-struct Rucksack {
-    compartment_1: Compartment,
-    compartment_2: Compartment,
-}
+#[derive(Debug)]
+struct Rucksack(Compartment, Compartment);
 
 impl Rucksack {
     fn new(items: &str) -> Self {
         let (compartment_1, compartment_2) = items.split_at(items.len() / 2);
-        Rucksack {
-            compartment_1: compartment_1.chars().map(Item::new).collect(),
-            compartment_2: compartment_2.chars().map(Item::new).collect(),
-        }
+        Rucksack(
+            compartment_1.chars().map(Item::new).collect(),
+            compartment_2.chars().map(Item::new).collect(),
+        )
     }
 
     fn common_item(&self) -> Option<&Item> {
-        self.compartment_1
+        self.0
             .iter()
-            .find(|c| self.compartment_2.contains(c))
+            .find(|c| self.1.contains(c))
     }
 
-    fn contents(&self) -> Vec<Item> {
-        self.compartment_1
+    fn contents(&self) -> Vec<&Item> {
+        self.0
             .iter()
-            .cloned()
-            .chain(self.compartment_2.iter().cloned())
+            .chain(self.1.iter())
             .collect()
     }
 }
@@ -65,12 +61,12 @@ impl Group {
         )
     }
 
-    fn common_item(&self) -> Option<Item> {
+    fn common_item(&self) -> Option<&Item> {
         self.0
             .contents()
             .iter()
             .find(|c| self.1.contents().contains(c) && self.2.contents().contains(c))
-            .cloned()
+            .copied()
     }
 }
 
