@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::Stack;
 
 const LINES: [&'static str; 4] = [
