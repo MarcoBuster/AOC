@@ -9,24 +9,21 @@ const LINES: [&'static str; 4] = [
     "move 1 from 1 to 2",
 ];
 
-fn get_crates() -> HashMap<u8, Stack> {
-    let mut crates: HashMap<u8, Stack> = HashMap::new();
-    crates.insert(
-        1,
+fn get_crates() -> Vec<Stack> {
+    let mut crates: Vec<Stack> = Vec::new();
+    crates.push(
         Stack {
             number: 1,
             crates: vec!['Z', 'N'],
         },
     );
-    crates.insert(
-        2,
+    crates.push(
         Stack {
             number: 2,
             crates: vec!['M', 'C', 'D'],
         },
     );
-    crates.insert(
-        3,
+    crates.push(
         Stack {
             number: 3,
             crates: vec!['P'],

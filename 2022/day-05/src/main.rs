@@ -1,9 +1,7 @@
 #[cfg(test)]
 mod tests;
 
-use itertools::Itertools;
-use std::{collections::HashMap, fs};
-
+use std::fs;
 use regex::Regex;
 
 type Crate = char;
@@ -15,17 +13,10 @@ fn parse_crate(value: &str) -> Crate {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 struct Stack {
     crates: Vec<Crate>,
-    number: u8,
+    number: usize,
 }
 
 impl Stack {
-    fn new(number: u8) -> Self {
-        Stack {
-            crates: vec![],
-            number,
-        }
-    }
-
     fn push(&mut self, crate_: Crate) {
         self.crates.push(crate_);
     }
@@ -50,22 +41,22 @@ impl Stack {
 
 #[derive(Debug)]
 struct Command {
-    source: u8,
-    destination: u8,
-    quantity: u8,
+    source: usize,
+    destination: usize,
+    quantity: usize,
 }
 
-type StackMap = HashMap<u8, Stack>;
+type StackList = Vec<Stack>;
 
 trait StackMapMethods {
     fn peek_str(&self) -> String;
 }
 
-impl StackMapMethods for StackMap {
+impl StackMapMethods for StackList {
     fn peek_str(&self) -> String {
         let mut result = "".to_string();
-        for stack in self.iter().sorted() {
-            if let Some(crate_) = stack.1.peek() {
+        for stack in self.iter() {
+            if let Some(crate_) = stack.peek() {
                 result = format!("{}{}", result, crate_);
             }
         }
@@ -78,29 +69,29 @@ impl Command {
         let re = Regex::new(r"move (\d+) from (\d+) to (\d+)").unwrap();
         let captures = re.captures_iter(value).next().unwrap();
         Command {
-            source: captures[2].parse::<u8>().unwrap(),
-            destination: captures[3].parse::<u8>().unwrap(),
-            quantity: captures[1].parse::<u8>().unwrap(),
+            source: captures[2].parse::<usize>().unwrap(),
+            destination: captures[3].parse::<usize>().unwrap(),
+            quantity: captures[1].parse::<usize>().unwrap(),
         }
     }
 
-    fn exec_part1(&self, stacks: &mut HashMap<u8, Stack>) {
+    fn exec_part1(&self, stacks: &mut [Stack]) {
         for _i in 0..self.quantity {
-            let source = stacks.get_mut(&self.source).unwrap();
+            let source = stacks.get_mut(self.source - 1).unwrap();
             let element = source.pop();
-            let dest = stacks.get_mut(&self.destination).unwrap();
+            let dest = stacks.get_mut(self.destination - 1).unwrap();
             dest.push(element);
         }
     }
 
-    fn exec_part2(&self, stacks: &mut HashMap<u8, Stack>) {
-        let source = stacks.get_mut(&self.source).unwrap();
+    fn exec_part2(&self, stacks: &mut [Stack]) {
+        let source = stacks.get_mut(self.source - 1).unwrap();
         let mut elements: Vec<Crate> = Vec::new();
         for _i in 0..self.quantity {
             elements.push(source.pop());
         }
         elements.reverse();
-        let dest = stacks.get_mut(&self.destination).unwrap();
+        let dest = stacks.get_mut(self.destination - 1).unwrap();
         dest.extend(elements);
     }
 }
@@ -108,9 +99,14 @@ impl Command {
 fn main() {
     let contents = fs::read_to_string("input.txt").unwrap();
 
+    let first_line = contents.lines().next().unwrap();
+    let mut stacks: Vec<Stack> = Vec::new();
+    for i in 0..(first_line.len() + 1) / 4 {
+        stacks.push(Stack { crates: vec![], number: i + 1 })
+    }
+
     let mut parse_stacks = true;
-    let mut stacks: HashMap<u8, Stack> = HashMap::new();
-    let mut stacks_part2: HashMap<u8, Stack> = HashMap::new();
+    let mut stacks_part2: Vec<Stack> = Vec::new();
     for line in contents.lines() {
         if line.is_empty() {
             if !parse_stacks {
@@ -138,16 +134,9 @@ fn main() {
                     num_chars += 1;
                 }
 
-                let key = (num_chars / 4) as u8;
+                let key = num_chars / 4;
                 let crate_name = parse_crate(group);
-                match stacks.get_mut(&key) {
-                    Some(stack) => stack.insert_last(crate_name),
-                    None => {
-                        let mut stack = Stack::new(key);
-                        stack.push(crate_name);
-                        stacks.insert(key, stack);
-                    }
-                };
+                stacks.get_mut(key - 1).unwrap().insert_last(crate_name);
             }
         } else {
             let command = Command::parse_string(line);
