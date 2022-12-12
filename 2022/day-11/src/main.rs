@@ -77,18 +77,23 @@ impl Monkey {
 #[derive(Debug)]
 struct MonkeyManager {
     monkeys: Vec<Monkey>,
+    common_multiplier: u64,
 }
 
 impl MonkeyManager {
     fn new() -> Self {
-        MonkeyManager { monkeys: vec![] }
+        MonkeyManager {
+            monkeys: vec![],
+            common_multiplier: 1,
+        }
     }
 
     fn insert(&mut self, monkey: Monkey) {
+        self.common_multiplier *= monkey.divisible_by;
         self.monkeys.push(monkey);
     }
 
-    fn turn(&mut self, index: usize) {
+    fn turn(&mut self, index: usize, divide_by_three: bool) {
         let monkey = self.monkeys[index].clone();
         let item_count = monkey.items.len();
 
@@ -102,7 +107,12 @@ impl MonkeyManager {
                 .as_u64()
                 .unwrap();
 
-            worry_level /= 3;
+            if divide_by_three {
+                worry_level /= 3;
+            } else {
+                worry_level %= self.common_multiplier;
+            }
+
             let other = self
                 .monkeys
                 .get_mut(if worry_level % monkey.divisible_by == 0 {
@@ -121,16 +131,25 @@ impl MonkeyManager {
         };
     }
 
-    fn round(&mut self) {
+    fn round(&mut self, divide_by_three: bool) {
         for i in 0..self.monkeys.len() {
-            self.turn(i);
+            self.turn(i, divide_by_three);
         }
+    }
+
+    fn monkey_business(&self) -> u64 {
+        let mut monkey_inspections = self
+            .monkeys
+            .iter()
+            .map(|monkey| monkey.inspections)
+            .collect::<Vec<_>>();
+        monkey_inspections.sort_unstable();
+        monkey_inspections.iter().rev().take(2).product()
     }
 }
 
 fn main() {
     let contents = fs::read_to_string("input.txt").unwrap();
-
     let lines: Vec<&str> = contents.lines().collect();
 
     let mut manager = MonkeyManager::new();
@@ -138,19 +157,24 @@ fn main() {
         let monkey = Monkey::parse(chunk.join("\n"));
         manager.insert(monkey);
     }
-
     for _ in 0..20 {
-        manager.round();
+        manager.round(true);
     }
 
-    let mut monkey_inspections = manager
-        .monkeys
-        .iter()
-        .map(|monkey| monkey.inspections)
-        .collect::<Vec<_>>();
-    monkey_inspections.sort_unstable();
-    let part_1: u64 = monkey_inspections.iter().rev().take(2).product();
+    let part_1: u64 = manager.monkey_business();
     println!("Part 1: {}", part_1);
+    assert_eq!(part_1, 102_399);
 
-    // TODO: part 2 :) 
+    let mut manager = MonkeyManager::new();
+    for chunk in lines.chunks(7) {
+        let monkey = Monkey::parse(chunk.join("\n"));
+        manager.insert(monkey);
+    }
+    for _ in 0..10_000 {
+        manager.round(false);
+    }
+
+    let part_2: u64 = manager.monkey_business();
+    println!("Part 2: {}", part_2);
+    assert_eq!(part_2, 23_641_658_401);
 }
